@@ -27,7 +27,7 @@ jobs:
       - name: Generate OpenAPI specification
         run: |
           # Запуск скрипта для генерации openapi.yaml
-          python ./scrippt.py  # Используем относительный путь
+          python ./script.py  # Используем относительный путь
 
       - name: Install Node
         uses: actions/setup-node@v4
