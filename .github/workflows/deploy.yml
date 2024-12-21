@@ -1,0 +1,48 @@
+name: Deploy API Documentation
+
+on:
+  push:
+    branches:
+      - main  # Workflow запускается при push в main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install bandit
+
+      - name: Run Bandit security check
+        run: bandit -r . -v  # Рецензируем весь проект и выводим подробный отчет
+
+      - name: Generate OpenAPI specification
+        run: |
+          python app.py  # Запускаем приложение, чтобы сгенерировать спецификацию
+          curl http://127.0.0.1:5000/apidocs/swagger.json -o openapi.json  # Извлекаем swagger.json
+          mv openapi.json openapi.yaml  # Переименовываем в openapi.yaml
+
+      - name: Install redocly CLI
+        run: npm install -g @redocly/redoc-cli
+
+      - name: Generate ReDoc documentation
+        run: |
+          redocly build-docs openapi.yaml --output ./docs  # Генерируем документацию в папку ./docs
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs  # Публикуем директорию, где была сгенерирована документация
+
