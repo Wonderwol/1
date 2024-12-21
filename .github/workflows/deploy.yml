@@ -3,60 +3,49 @@ name: Deploy API Documentation
 on:
   push:
     branches:
-      - main  # Workflow запускается при push в main
+      - main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Шаг 1: Checkout репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Шаг 2: Установка Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      # Шаг 3: Установка зависимостей
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install flask
-          pip install flasgger  # Устанавливаем flasgger для генерации OpenAPI спецификации
+          pip install flasgger
 
-      # Шаг 4: Генерация OpenAPI спецификации
       - name: Generate OpenAPI specification
         run: |
-          # Запуск Flask-приложения в фоновом режиме
           nohup python app.py &
-
-          # Даем серверу немного времени на старт
           sleep 5
-
-          # Извлекаем swagger.json
           curl http://127.0.0.1:5000/apidocs/swagger.json -o openapi.json
-          
-          # Переименовываем в openapi.yaml
           mv openapi.json openapi.yaml
 
-      # Шаг 5: Установка Redocly CLI
-      - name: Install redoc-cli
-        run: npm install -g redoc-cli
+      # Преобразуем YAML в JSON
+      - name: Convert YAML to JSON
+        run: |
+          yaml2json openapi.yaml > openapi.json
 
-      # Шаг 6: Генерация документации с помощью Redocly
+      # Устанавливаем и используем Redocly CLI для генерации документации
+      - name: Install @redocly/cli
+        run: npm install -g @redocly/cli
+
       - name: Generate ReDoc documentation
         run: |
-          redoc-cli bundle openapi.yaml --output ./docs/index.html  # Генерация документации в ./docs
+          npx @redocly/cli build-docs openapi.json --output ./docs/index.html
 
-      # Шаг 7: Публикация документации на GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs  # Публикуем сгенерированную документацию на GitHub Pages
-
-
-
+          publish_dir: ./docs
