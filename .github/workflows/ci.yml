@@ -3,12 +3,15 @@ name: Deploy API Documentation
 on:
   push:
     branches:
-      - main  # Workflow запускается при push в main
+      - main
+
+permissions:
+  contents: write   # Разрешение на запись
+  pages: write      # Разрешение на публикацию на GitHub Pages
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -22,12 +25,11 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install flask
-          pip install flasgger  # Устанавливаем flasgger для генерации OpenAPI спецификации
+          pip install flasgger
 
       - name: Generate OpenAPI specification
         run: |
-          # Запуск скрипта для генерации openapi.yaml
-          python ./script.py  # Используем относительный путь
+          python ./scrippt.py
 
       - name: Install Node
         uses: actions/setup-node@v4
@@ -40,13 +42,14 @@ jobs:
 
       - name: Generate ReDoc documentation
         run: |
-          redocly build-docs ./docs/openapi.yaml --output ./docs/index.html  # Генерация документации в ./docs
+          redocly build-docs ./docs/openapi.yaml --output ./docs/index.html
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs  # Публикуем сгенерированную документацию на GitHub Pages
+          github_token: ${{ secrets.GITHUB_TOKEN }}  # Токен передается в action
+          publish_dir: ./docs
+git add .github/workflows/deploy.yml
 
 
 
