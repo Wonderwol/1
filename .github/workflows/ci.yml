@@ -10,50 +10,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Шаг 1: Checkout репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Шаг 2: Установка Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      # Шаг 3: Установка зависимостей для Flask и Flasgger
-      - name: Install dependencies for Flask and Flasgger
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install flask
           pip install flasgger  # Устанавливаем flasgger для генерации OpenAPI спецификации
 
-      # Шаг 4: Генерация OpenAPI спецификации с помощью Flasgger
-      - name: Generate OpenAPI YAML Specification
+      - name: Generate OpenAPI specification
         run: |
-          python d:/dev/holova/1/scrippt.py  # Запуск скрипта для генерации openapi.yaml
+          # Запуск скрипта для генерации openapi.yaml
+          python ./scrippt.py  # Используем относительный путь
 
-      # Шаг 5: Установка Node.js
-      - name: Install Node.js
+      - name: Install Node
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # Шаг 6: Установка Redocly CLI
       - name: Install Redocly CLI
         run: |
-          npm install -g @redocly/cli
+          npm install -g @redocly/cli@latest
 
-      # Шаг 7: Генерация документации с помощью Redocly
-      - name: Generate API Documentation
+      - name: Generate ReDoc documentation
         run: |
-          redocly build-docs docs/openapi.yaml --output ./docs/index.html
+          redocly build-docs ./docs/openapi.yaml --output ./docs/index.html  # Генерация документации в ./docs
 
-      # Шаг 8: Публикация документации на GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs  # Публикуем сгенерированную документацию на GitHub Pages
+
 
 
 
