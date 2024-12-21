@@ -1,4 +1,4 @@
-definitions: {}
+openapi: 3.0.0
 info:
   description: powered by Flasgger
   termsOfService: /tos
@@ -7,21 +7,27 @@ info:
 paths:
   /contacts:
     post:
-      parameters:
-      - in: body
-        name: contact
+      summary: Создание нового контакта
+      requestBody:
         required: true
-        schema:
-          properties:
-            name:
-              type: string
-            phone:
-              type: string
-          type: object
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phone:
+                  type: string
       responses:
         '200':
-          description: "\u041A\u043E\u043D\u0442\u0430\u043A\u0442 \u0443\u0441\u043F\
-            \u0435\u0448\u043D\u043E \u0441\u043E\u0437\u0434\u0430\u043D"
-      summary: "\u0421\u043E\u0437\u0434\u0430\u043D\u0438\u0435 \u043D\u043E\u0432\
-        \u043E\u0433\u043E \u043A\u043E\u043D\u0442\u0430\u043A\u0442\u0430"
-swagger: '2.0'
+          description: Контакт успешно создан
+components:
+  schemas:
+    Contact:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
