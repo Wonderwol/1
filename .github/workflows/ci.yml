@@ -3,50 +3,63 @@ name: Deploy API Documentation
 on:
   push:
     branches:
-      - main  # Workflow запускается при push в main
+      - main  # Пайплайн запускается при push в ветку main
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Шаг 1: Checkout репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Шаг 2: Установка Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
-      - name: Install dependencies
+      # Шаг 3: Установка зависимостей Python
+      - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip
-          python -m pip install flask
-          pip install flasgger  # Устанавливаем flasgger для генерации OpenAPI спецификации
+          pip install flask flasgger
 
-      - name: Generate OpenAPI specification
-        run: |
-          # Запуск скрипта для генерации openapi.yaml
-          python ./script.py  # Используем относительный путь
-
-      - name: Install Node
+      # Шаг 4: Установка Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '18'
 
+      # Шаг 5: Установка Redocly CLI
       - name: Install Redocly CLI
         run: |
-          npm install -g @redocly/cli@latest
+          npm install -g @redocly/cli
 
+      # Шаг 6: Запуск Flask-приложения для генерации OpenAPI спецификации
+      - name: Run Flask app and generate OpenAPI spec
+        run: |
+          # Запуск Flask приложения в фоновом режиме
+          nohup python app.py & 
+          sleep 5  # Даем серверу время на старт
+
+          # Извлекаем swagger.json из работающего Flask приложения
+          curl http://127.0.0.1:5000/apidocs/swagger.json -o openapi.json
+          mv openapi.json openapi.yaml  # Переименовываем в openapi.yaml
+
+      # Шаг 7: Генерация документации с использованием Redocly
       - name: Generate ReDoc documentation
         run: |
-          redocly build-docs ./docs/openapi.yaml --output ./docs/index.html  # Генерация документации в ./docs
+          redocly build-docs openapi.yaml --output ./docs/index.html
 
+      # Шаг 8: Публикация документации на GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs  # Публикуем сгенерированную документацию на GitHub Pages
+
 
 
 
