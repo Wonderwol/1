@@ -32,7 +32,9 @@ jobs:
         run: |
           # Запуск Flask-приложения в фоновом режиме
           nohup python app.py &
-          sleep 5  # Даем серверу время на старт
+
+          # Даем серверу немного времени на старт
+          sleep 5
 
           # Извлекаем swagger.json
           curl http://127.0.0.1:5000/apidocs/swagger.json -o openapi.json
@@ -40,14 +42,14 @@ jobs:
           # Переименовываем в openapi.yaml
           mv openapi.json openapi.yaml
 
-      # Шаг 5: Установка redocly CLI
-      - name: Install redocly CLI
-        run: npm install -g @redocly/redoc-cli
+      # Шаг 5: Установка Redocly CLI
+      - name: Install redoc-cli
+        run: npm install -g redoc-cli
 
       # Шаг 6: Генерация документации с помощью Redocly
       - name: Generate ReDoc documentation
         run: |
-          redocly build-docs openapi.yaml --output ./docs  # Генерация документации в ./docs
+          redoc-cli bundle openapi.yaml --output ./docs/index.html  # Генерация документации в ./docs
 
       # Шаг 7: Публикация документации на GitHub Pages
       - name: Deploy to GitHub Pages
@@ -55,5 +57,6 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs  # Публикуем сгенерированную документацию на GitHub Pages
+
 
 
