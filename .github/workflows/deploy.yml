@@ -3,7 +3,7 @@ name: Deploy API Documentation
 on:
   push:
     branches:
-      - main
+      - main  # Workflow запускается при push в main
 
 jobs:
   deploy:
@@ -20,39 +20,42 @@ jobs:
         with:
           python-version: '3.9'
 
-      # Шаг 3: Установка зависимостей
-      - name: Install dependencies
+      # Шаг 3: Установка зависимостей для Flask и Flasgger
+      - name: Install dependencies for Flask and Flasgger
         run: |
           python -m pip install --upgrade pip
           python -m pip install flask
-          pip install flasgger
+          pip install flasgger  # Устанавливаем flasgger для генерации OpenAPI спецификации
 
-      # Шаг 4: Запуск Flask-приложения для генерации OpenAPI спецификации
-      - name: Run Flask app and generate OpenAPI spec
+      # Шаг 4: Генерация OpenAPI спецификации с помощью Flasgger
+      - name: Generate OpenAPI YAML Specification
         run: |
-          nohup python app.py &  # Запуск Flask-приложения в фоне
-          sleep 5  # Даем время серверу на стартап
-          curl http://127.0.0.1:5000/apidocs/swagger.json -o openapi.json
+          python d:/dev/holova/1/scrippt.py  # Запуск скрипта для генерации openapi.yaml
 
-      # Шаг 5: Проверка наличия openapi.json
-      - name: Display openapi.json content
-        run: |
-          cat openapi.json  # Выводим содержимое openapi.json, чтобы убедиться, что файл существует
+      # Шаг 5: Установка Node.js
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
       # Шаг 6: Установка Redocly CLI
-      - name: Install @redocly/cli
-        run: npm install -g @redocly/cli
+      - name: Install Redocly CLI
+        run: |
+          npm install -g @redocly/cli
 
       # Шаг 7: Генерация документации с помощью Redocly
-      - name: Generate ReDoc documentation
+      - name: Generate API Documentation
         run: |
-          npx @redocly/cli build-docs openapi.json --output ./docs/index.html
+          redocly build-docs docs/openapi.yaml --output ./docs/index.html
 
       # Шаг 8: Публикация документации на GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs
+          publish_dir: ./docs  # Публикуем сгенерированную документацию на GitHub Pages
+
+
+
 
 

@@ -1,5 +1,6 @@
-from flasgger import Swagger
 from flask import Flask, jsonify
+from flasgger import Swagger
+import yaml
 
 app = Flask(__name__)
 swagger = Swagger(app)
@@ -26,8 +27,19 @@ def create_contact():
     """
     return jsonify(message="Contact created"), 200
 
+@app.route('/apispec_1.json')
+def get_swagger_json():
+    """
+    Генерация Swagger JSON спецификации
+    """
+    return jsonify(app.config['SWAGGER'])
+
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
+
 
 
 
