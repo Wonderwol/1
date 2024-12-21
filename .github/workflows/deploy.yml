@@ -10,47 +10,49 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Шаг 1: Checkout репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Шаг 2: Установка Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.9'
 
+      # Шаг 3: Установка зависимостей
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           python -m pip install flask
           pip install flasgger
 
-      - name: Generate OpenAPI specification
+      # Шаг 4: Запуск Flask-приложения для генерации OpenAPI спецификации
+      - name: Run Flask app and generate OpenAPI spec
         run: |
-          nohup python app.py &
-          sleep 5
+          nohup python app.py &  # Запуск Flask-приложения в фоне
+          sleep 5  # Даем время серверу на стартап
           curl http://127.0.0.1:5000/apidocs/swagger.json -o openapi.json
-          mv openapi.json openapi.yaml
 
-      # Установка пакета для конвертации YAML в JSON
-      - name: Install yamljs for YAML to JSON conversion
-        run: npm install -g yamljs
-
-      # Преобразуем YAML в JSON
-      - name: Convert YAML to JSON
+      # Шаг 5: Проверка наличия openapi.json
+      - name: Display openapi.json content
         run: |
-          yaml2json openapi.yaml > openapi.json
+          cat openapi.json  # Выводим содержимое openapi.json, чтобы убедиться, что файл существует
 
-      # Устанавливаем и используем Redocly CLI для генерации документации
+      # Шаг 6: Установка Redocly CLI
       - name: Install @redocly/cli
         run: npm install -g @redocly/cli
 
+      # Шаг 7: Генерация документации с помощью Redocly
       - name: Generate ReDoc documentation
         run: |
           npx @redocly/cli build-docs openapi.json --output ./docs/index.html
 
+      # Шаг 8: Публикация документации на GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs
+
 

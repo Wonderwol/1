@@ -27,8 +27,8 @@ def create_contact():
     return jsonify(message="Contact created"), 200
 
 if __name__ == "__main__":
-    # Запускаем приложение для генерации спецификации
     app.run(debug=True)
+
 
 
 
