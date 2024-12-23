@@ -1,3 +1,4 @@
+---
 openapi: 3.0.0
 info:
   description: powered by Flasgger
@@ -31,3 +32,4 @@ components:
           type: string
         phone:
           type: string
+
