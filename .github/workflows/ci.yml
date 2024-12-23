@@ -37,28 +37,36 @@ jobs:
         run: |
           npm install -g @redocly/cli
 
-      # Шаг 6: Запуск Flask-приложения для генерации OpenAPI спецификации
+      # Шаг 6: Запуск Flask-приложения и генерация OpenAPI спецификации
       - name: Run Flask app and generate OpenAPI spec
         run: |
           # Запуск Flask приложения в фоновом режиме
-          nohup python app.py & 
+          nohup python app.py &
           sleep 5  # Даем серверу время на старт
 
           # Извлекаем swagger.json из работающего Flask приложения
           curl http://127.0.0.1:5000/apidocs/swagger.json -o openapi.json
-          mv openapi.json openapi.yaml  # Переименовываем в openapi.yaml
+          
+          # Конвертируем JSON в YAML
+          npx js-yaml openapi.json > openapi.yaml
 
-      # Шаг 7: Генерация документации с использованием Redocly
+      # Шаг 7: Проверка спецификации OpenAPI
+      - name: Validate OpenAPI spec
+        run: |
+          redocly lint openapi.yaml
+
+      # Шаг 8: Генерация документации с использованием Redocly
       - name: Generate ReDoc documentation
         run: |
           redocly build-docs openapi.yaml --output ./docs/index.html
 
-      # Шаг 8: Публикация документации на GitHub Pages
+      # Шаг 9: Публикация документации на GitHub Pages
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs  # Публикуем сгенерированную документацию на GitHub Pages
+
 
 
 
