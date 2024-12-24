@@ -113,14 +113,3 @@ with open('openapi.yaml', 'w') as f:
           git push --force  # Принудительно пушим на GitHub Pages
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Используем токен для деплоя
-
-
-
-
-
-
-
-
-
-
-
