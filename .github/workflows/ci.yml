@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@v2  # Проверяем код из репозитория
+        uses: actions/checkout@v4  # Проверяем код из репозитория
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -26,7 +26,7 @@ jobs:
         run: bandit -r ./ -x tests --output bandit_report.html  # Запуск Bandit и сохранение отчета
 
       - name: Upload Bandit Report as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: bandit-report  # Название артефакта
           path: bandit_report.html  # Путь к отчету Bandit
@@ -64,7 +64,7 @@ jobs:
           FLASK_APP: app.py  # Убедитесь, что указан правильный файл Flask-приложения
 
       - name: Upload OpenAPI Spec as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: openapi-spec  # Название артефакта
           path: openapi.yaml  # Путь к сгенерированному файлу openapi.yaml
@@ -76,7 +76,7 @@ jobs:
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@v2  # Проверяем код
+        uses: actions/checkout@v4  # Проверяем код
 
       - name: Install Node.js
         uses: actions/setup-node@v3
@@ -90,7 +90,7 @@ jobs:
         run: redocly build-docs openapi.yaml --output docs/index.html  # Генерация страницы ReDoc
 
       - name: Upload ReDoc Documentation as Artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: redoc-docs  # Название артефакта
           path: docs/index.html  # Путь к сгенерированному файлу
@@ -102,7 +102,7 @@ jobs:
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@v2  # Проверяем код
+        uses: actions/checkout@v4  # Проверяем код
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
