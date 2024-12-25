@@ -57,7 +57,7 @@ jobs:
           flask run --host=0.0.0.0 --port=5000 --debug &  # Запускаем сервер в фоне с флагом debug
 
       - name: Wait for Flask to start
-        run: sleep 30  # Увеличиваем время ожидания до 30 секунд
+        run: sleep 10  # Увеличиваем время ожидания до 30 секунд
 
       - name: Check if Flask is running
         run: |
@@ -84,31 +84,8 @@ jobs:
 
       - name: Install Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: '18'  # Устанавливаем Node.js для работы с Redocly
+     
 
-      - name: Install Redocly CLI
-        run: |
-          npm install -g @redocly/cli@latest  # Устанавливаем последнюю версию Redocly CLI
-
-      - name: Generate ReDoc HTML
-        run: |
-          redocly build-docs openapi.yaml -o docs/index.html  # Генерируем страницу документации ReDoc
-
-  deploy_to_pages:
-    name: Deploy Documentation to GitHub Pages
-    runs-on: ubuntu-latest
-    needs: redoc_generation  # Этот шаг зависит от завершения предыдущего шага
-
-    steps:
-      - name: Check out the code
-        uses: actions/checkout@v4  # Проверяем код
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs  # Директория, куда загружается документация
 
 
 
