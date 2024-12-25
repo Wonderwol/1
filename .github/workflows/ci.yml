@@ -3,113 +3,96 @@ name: CI Workflow
 on:
   push:
     branches:
-      - main  # workflow срабатывает на пуш в ветку main
+      - main
 
 jobs:
   security_check:
-    name: Security Check with Bandit
     runs-on: ubuntu-latest
-
     steps:
       - name: Check out the code
-        uses: actions/checkout@v2  # Проверяем код из репозитория
+        uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # Указываем нужную версию Python
+          python-version: '3.9'
 
       - name: Install Bandit
-        run: |
-          pip install bandit  # Устанавливаем Bandit для проверки безопасности
+        run: pip install bandit
 
       - name: Run Bandit Security Scan
-        run: |
-          bandit -r ./ -x tests --output bandit_report.html  # Запуск Bandit и сохранение отчета
+        run: bandit -r ./ -x tests --output bandit_report.html
 
       - name: Upload Bandit Report as Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: bandit-report  # Загрузка отчета Bandit как артефакт
-          path: bandit_report.html  # Путь к отчету Bandit
+          name: bandit-report
+          path: bandit_report.html
 
   openapi_generation:
-    name: Generate OpenAPI Documentation
     runs-on: ubuntu-latest
-    needs: security_check  # Этот шаг зависит от завершения предыдущего шага
-
+    needs: security_check
     steps:
       - name: Check out the code
-        uses: actions/checkout@v2  # Проверяем код
+        uses: actions/checkout@v2
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'  # Указываем нужную версию Python
+          python-version: '3.9'
 
       - name: Install Dependencies
-        run: |
-          pip install flask flasgger  # Устанавливаем Flask и Flasgger для работы с OpenAPI
+        run: pip install flask flasgger
 
-      - name: Generate OpenAPI Specification (openapi.yaml)
+      - name: Generate OpenAPI Specification
         run: |
           python -c "
 import sys
 from flasgger import Swagger
-from app import app  # Здесь должен быть импорт вашего приложения Flask
-
-swagger = Swagger(app)  # Инициализация Swagger с приложением Flask
+from app import app
+swagger = Swagger(app)
 with open('openapi.yaml', 'w') as f:
-    f.write(swagger.spec.to_yaml())  # Запись спецификации OpenAPI в файл openapi.yaml
+    f.write(swagger.spec.to_yaml())
 "
         env:
-          FLASK_APP: app.py  # Убедитесь, что указываете правильный файл Flask-приложения
+          FLASK_APP: app.py
 
       - name: Upload OpenAPI Spec as Artifact
         uses: actions/upload-artifact@v2
         with:
-          name: openapi-spec  # Загрузка OpenAPI спецификации как артефакт
-          path: openapi.yaml  # Путь к сгенерированному файлу openapi.yaml
+          name: openapi-spec
+          path: openapi.yaml
 
   redoc_generation:
-    name: Generate ReDoc Page
     runs-on: ubuntu-latest
-    needs: openapi_generation  # Этот шаг зависит от завершения предыдущего шага
-
+    needs: openapi_generation
     steps:
       - name: Check out the code
-        uses: actions/checkout@v2  # Проверяем код
+        uses: actions/checkout@v2
 
       - name: Install Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'  # Устанавливаем Node.js для работы с redocly
+          node-version: '18'
 
       - name: Install redocly
-        run: |
-          npm install -g @redocly/openapi-cli  # Устанавливаем redocly
+        run: npm install -g @redocly/openapi-cli
 
       - name: Generate ReDoc HTML
-        run: |
-          redocly build-docs openapi.yaml --output docs/index.html  # Генерируем страницу документации ReDoc
+        run: redocly build-docs openapi.yaml --output docs/index.html
 
   deploy_to_pages:
-    name: Deploy Documentation to GitHub Pages
     runs-on: ubuntu-latest
-    needs: redoc_generation  # Этот шаг зависит от завершения предыдущего шага
-
+    needs: redoc_generation
     steps:
       - name: Check out the code
-        uses: actions/checkout@v2  # Проверяем код
-
-      - name: Install GitHub Pages Action
-        uses: peaceiris/actions-gh-pages@v3  # Используем экшн для деплоя на GitHub Pages
+        uses: actions/checkout@v2
 
       - name: Deploy to GitHub Pages
-        run: |
-          mv docs/index.html ./docs/  # Перемещаем сгенерированную страницу в папку docs
-          git add -A  # Добавляем изменения в git
-          git commit -m "Deploy ReDoc Documentation"  # Коммитим изменения
-          git push --force  # Принудительно пушим на GitHub Pages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Используем токен для деплоя
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs
+
+
+
