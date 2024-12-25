@@ -51,11 +51,17 @@ jobs:
         run: |
           pip install flask flasgger  # Устанавливаем Flask и Flasgger для работы с OpenAPI
 
+      - name: Run Flask application in background
+        run: |
+          export FLASK_APP=app.py  # Указываем правильный файл Flask-приложения
+          flask run --host=0.0.0.0 --port=5000 &  # Запускаем сервер в фоне
+
+      - name: Wait for Flask to start
+        run: sleep 10  # Ждем 10 секунд для старта Flask-сервера
+
       - name: Generate OpenAPI Specification (openapi.yaml)
         run: |
-          curl http://127.0.0.1:5000/swagger.json -o openapi.yaml
-        env:
-          FLASK_APP: app.py  # Убедитесь, что указываете правильный файл Flask-приложения
+          curl http://127.0.0.1:5000/swagger.json -o openapi.yaml  # Получаем OpenAPI спецификацию
 
       - name: Upload OpenAPI Spec as Artifact
         uses: actions/upload-artifact@v4
@@ -99,4 +105,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs  # Директория, куда загружается документация
+
 
