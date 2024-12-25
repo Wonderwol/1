@@ -81,15 +81,15 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'  # Устанавливаем Node.js для работы с redocly
+          node-version: '18'  # Устанавливаем Node.js для работы с Redocly
 
-      - name: Install @redocly/openapi-cli
+      - name: Install Redocly CLI
         run: |
-          npm install @redocly/openapi-cli  # Устанавливаем правильный пакет для redocly
+          npm install -g @redocly/cli@latest  # Устанавливаем последнюю версию Redocly CLI
 
       - name: Generate ReDoc HTML
         run: |
-          npx @redocly/openapi-cli build-docs openapi.yaml --output docs  # Генерируем страницу документации ReDoc с помощью npx
+          redocly build-docs openapi.yaml -o docs/index.html  # Генерируем страницу документации ReDoc
 
   deploy_to_pages:
     name: Deploy Documentation to GitHub Pages
