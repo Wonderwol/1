@@ -23,9 +23,9 @@ jobs:
         run: |
           pip install bandit  # Устанавливаем Bandit для проверки безопасности
 
-      - name: Run Bandit Security Scan
+      - name: Run security check
         run: |
-          bandit -r . -x ./venv -x ./.git --exclude ./venv/Lib/site-packages --skip B101,B110,B602,B603,B605,B607
+         bandit -r . -x ./venv -x ./.git --exclude ./venv/Lib/site-packages --skip B101,B110,B602,B603,B605,B607
 
       - name: Upload Bandit Report as Artifact
         uses: actions/upload-artifact@v4
@@ -47,24 +47,21 @@ jobs:
         with:
           python-version: '3.9'  # Указываем нужную версию Python
 
-      - name: Install dependencies
+      - name: Install Dependencies
         run: |
-          pip install flask flasgger  # Устанавливаем Flask и Flasgger
+          pip install flask flasgger  # Устанавливаем Flask и Flasgger для работы с OpenAPI
 
-      - name: Start Flask app in background
+      - name: Generate OpenAPI Specification (openapi.yaml)
         run: |
-          nohup python app.py &
-        
-      - name: Download OpenAPI spec
-        run: |
-          sleep 5  # Ждем, пока Flask-приложение запустится
-          curl http://127.0.0.1:5000/swagger.json -o openapi.json  # Загружаем OpenAPI спецификацию
+          curl http://127.0.0.1:5000/swagger.json -o openapi.yaml
+        env:
+          FLASK_APP: app.py  # Убедитесь, что указываете правильный файл Flask-приложения
 
       - name: Upload OpenAPI Spec as Artifact
         uses: actions/upload-artifact@v4
         with:
           name: openapi-spec  # Загрузка OpenAPI спецификации как артефакт
-          path: openapi.json  # Путь к файлу спецификации
+          path: openapi.yaml  # Путь к сгенерированному файлу openapi.yaml
 
   redoc_generation:
     name: Generate ReDoc Page
@@ -86,7 +83,7 @@ jobs:
 
       - name: Generate ReDoc HTML
         run: |
-          redocly build-docs openapi.json --output docs/index.html  # Генерируем страницу документации ReDoc
+          redocly build-docs openapi.yaml --output docs/index.html  # Генерируем страницу документации ReDoc
 
   deploy_to_pages:
     name: Deploy Documentation to GitHub Pages
@@ -98,7 +95,8 @@ jobs:
         uses: actions/checkout@v4  # Проверяем код
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3  # Используем экшн для деплоя на GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs  # Указываем папку для публикации
+          publish_dir: ./docs  # Директория, куда загружается документация
+
