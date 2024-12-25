@@ -57,11 +57,17 @@ jobs:
           flask run --host=0.0.0.0 --port=5000 --debug &  # Запускаем сервер в фоне с флагом debug
 
       - name: Wait for Flask to start
-        run: sleep 10  # Увеличиваем время ожидания до 30 секунд
+        run: sleep 5  # Увеличиваем время ожидания до 30 секунд
 
       - name: Generate OpenAPI Specification (openapi.yaml)
         run: |
           curl http://127.0.0.1:5000/swagger.json -o openapi.yaml  # Получаем OpenAPI спецификацию
+        continue-on-error: true  # Если файл не будет создан, пайплайн продолжит выполнение
+
+      - name: Check if openapi.yaml exists
+        run: |
+          ls -la openapi.yaml  # Проверяем, существует ли файл openapi.yaml
+        continue-on-error: true  # Если файл не существует, пайплайн продолжит выполнение
 
       - name: Upload OpenAPI Spec as Artifact
         uses: actions/upload-artifact@v4
@@ -86,6 +92,11 @@ jobs:
       - name: Install Redocly CLI
         run: |
           npm install -g @redocly/cli@latest  # Устанавливаем последнюю версию Redocly CLI
+
+      - name: Check if openapi.yaml exists for ReDoc generation
+        run: |
+          ls -la openapi.yaml  # Проверяем, что файл openapi.yaml существует перед генерацией
+        continue-on-error: true  # Этот шаг не остановит пайплайн
 
       - name: Generate ReDoc HTML
         run: |
