@@ -57,15 +57,15 @@ jobs:
           flask run --host=0.0.0.0 --port=5000 --debug &  # Запускаем сервер в фоне с флагом debug
 
       - name: Wait for Flask to start
-        run: sleep 5  # Увеличиваем время ожидания до 30 секунд
+        run: sleep 20  # Увеличиваем время ожидания до 20 секунд
 
-      - name: Check if Flask is running
+      - name: Check if Flask is running via IP address
+        run: |
+          curl --silent --fail http://10.1.0.119:5000/ || exit 1  # Проверяем, что сервер доступен через IP-адрес
+
+      - name: Check if Flask is running via localhost
         run: |
           curl --silent --fail http://localhost:5000/ || exit 1  # Проверяем, что сервер доступен на localhost
-
-      - name: Check Flask logs (diagnostic step)
-        run: |
-          curl http://localhost:5000/swagger.json || echo "Flask did not respond correctly"  # Получаем swagger.json или выводим ошибку
 
       - name: Generate OpenAPI Specification (openapi.yaml)
         run: |
@@ -118,4 +118,5 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs  # Директория, куда загружается документация
+
 
