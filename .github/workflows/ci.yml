@@ -38,7 +38,7 @@ jobs:
 
     steps:
       - name: Check out the code
-        uses: actions/checkout@v2  # Проверяем код
+        uses: actions/checkout@v4  # Проверяем код
 
       - name: Set up Python
         uses: actions/setup-python@v4
