@@ -51,14 +51,14 @@ jobs:
       - name: Generate OpenAPI Specification
         run: |
           echo "
-import sys
-from flasgger import Swagger
-from app import app
+          import sys
+          from flasgger import Swagger
+          from app import app
 
-swagger = Swagger(app)
-with open('openapi.yaml', 'w') as f:
-    f.write(swagger.spec.to_yaml())
-" > scripts/generate_openapi.py
+          swagger = Swagger(app)
+          with open('openapi.yaml', 'w') as f:
+              f.write(swagger.spec.to_yaml())
+          " > scripts/generate_openapi.py
           python scripts/generate_openapi.py  # Генерация OpenAPI спецификации
         env:
           FLASK_APP: app.py  # Убедитесь, что указан правильный файл Flask-приложения
