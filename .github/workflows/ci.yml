@@ -30,40 +30,31 @@ jobs:
           path: bandit_report.html
 
   openapi_generation:
-    runs-on: ubuntu-latest
-    needs: security_check
-    steps:
-      - name: Check out the code
-        uses: actions/checkout@v2
+  runs-on: ubuntu-latest
+  needs: security_check
+  steps:
+    - name: Check out the code
+      uses: actions/checkout@v2
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
-      - name: Install Dependencies
-        run: pip install flask flasgger
+    - name: Install Dependencies
+      run: pip install flask flasgger
 
-      - name: Generate OpenAPI Specification
-        run: |
-          echo "
-import sys
-from flasgger import Swagger
-from app import app
-swagger = Swagger(app)
-with open('openapi.yaml', 'w') as f:
-    f.write(swagger.spec.to_yaml())
-" > generate_openapi.py
-          python generate_openapi.py
+    - name: Generate OpenAPI Specification
+      run: python generate_openapi.py
 
-      - name: Check if openapi.yaml exists
-        run: test -f openapi.yaml && echo "File exists" || echo "File missing"
+    - name: Check if openapi.yaml exists
+      run: test -f openapi.yaml && echo "File exists" || echo "File missing"
 
-      - name: Upload OpenAPI Spec as Artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: openapi-spec
-          path: openapi.yaml
+    - name: Upload OpenAPI Spec as Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: openapi-spec
+        path: openapi.yaml
 
   redoc_generation:
     runs-on: ubuntu-latest
