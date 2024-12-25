@@ -46,16 +46,18 @@ jobs:
 
       - name: Generate OpenAPI Specification
         run: |
-          python -c "
+          echo "
 import sys
 from flasgger import Swagger
 from app import app
 swagger = Swagger(app)
 with open('openapi.yaml', 'w') as f:
     f.write(swagger.spec.to_yaml())
-"
-        env:
-          FLASK_APP: app.py
+" > generate_openapi.py
+          python generate_openapi.py
+
+      - name: Check if openapi.yaml exists
+        run: test -f openapi.yaml && echo "File exists" || echo "File missing"
 
       - name: Upload OpenAPI Spec as Artifact
         uses: actions/upload-artifact@v2
