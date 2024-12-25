@@ -1,5 +1,144 @@
-<!doctype html>
-<html lang=en>
-<title>404 Not Found</title>
-<h1>Not Found</h1>
-<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+{
+  "definitions": {},
+  "info": {
+    "description": "powered by Flasgger",
+    "termsOfService": "/tos",
+    "title": "A swagger API",
+    "version": "0.0.1"
+  },
+  "paths": {
+    "/contacts": {
+      "post": {
+        "parameters": [
+          {
+            "description": "\u0414\u0430\u043d\u043d\u044b\u0435 \u043d\u043e\u0432\u043e\u0433\u043e \u043a\u043e\u043d\u0442\u0430\u043a\u0442\u0430",
+            "in": "body",
+            "name": "body",
+            "required": true,
+            "schema": {
+              "properties": {
+                "name": {
+                  "example": "John Doe",
+                  "type": "string"
+                },
+                "phone": {
+                  "example": "+123456789",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "name",
+                "phone"
+              ],
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "\u041a\u043e\u043d\u0442\u0430\u043a\u0442 \u0443\u0441\u043f\u0435\u0448\u043d\u043e \u0441\u043e\u0437\u0434\u0430\u043d",
+            "schema": {
+              "properties": {
+                "id": {
+                  "example": 1,
+                  "type": "integer"
+                },
+                "name": {
+                  "example": "John Doe",
+                  "type": "string"
+                },
+                "phone": {
+                  "example": "+123456789",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "400": {
+            "description": "\u041e\u0448\u0438\u0431\u043a\u0430 \u0432 \u0437\u0430\u043f\u0440\u043e\u0441\u0435"
+          }
+        },
+        "summary": "\u0421\u043e\u0437\u0434\u0430\u0442\u044c \u043d\u043e\u0432\u044b\u0439 \u043a\u043e\u043d\u0442\u0430\u043a\u0442",
+        "tags": [
+          "\u041a\u043e\u043d\u0442\u0430\u043a\u0442\u044b"
+        ]
+      }
+    },
+    "/contacts/{contact_id}": {
+      "delete": {
+        "parameters": [
+          {
+            "description": "\u0418\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440 \u043a\u043e\u043d\u0442\u0430\u043a\u0442\u0430",
+            "in": "path",
+            "name": "contact_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "\u041a\u043e\u043d\u0442\u0430\u043a\u0442 \u0443\u0441\u043f\u0435\u0448\u043d\u043e \u0443\u0434\u0430\u043b\u0435\u043d",
+            "schema": {
+              "properties": {
+                "message": {
+                  "example": "Contact deleted",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "\u041a\u043e\u043d\u0442\u0430\u043a\u0442 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d"
+          }
+        },
+        "summary": "\u0423\u0434\u0430\u043b\u0438\u0442\u044c \u043a\u043e\u043d\u0442\u0430\u043a\u0442",
+        "tags": [
+          "\u041a\u043e\u043d\u0442\u0430\u043a\u0442\u044b"
+        ]
+      },
+      "get": {
+        "parameters": [
+          {
+            "description": "\u0418\u0434\u0435\u043d\u0442\u0438\u0444\u0438\u043a\u0430\u0442\u043e\u0440 \u043a\u043e\u043d\u0442\u0430\u043a\u0442\u0430",
+            "in": "path",
+            "name": "contact_id",
+            "required": true,
+            "type": "integer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "\u0418\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044f \u043e \u043a\u043e\u043d\u0442\u0430\u043a\u0442\u0435",
+            "schema": {
+              "properties": {
+                "id": {
+                  "example": 1,
+                  "type": "integer"
+                },
+                "name": {
+                  "example": "John Doe",
+                  "type": "string"
+                },
+                "phone": {
+                  "example": "+123456789",
+                  "type": "string"
+                }
+              },
+              "type": "object"
+            }
+          },
+          "404": {
+            "description": "\u041a\u043e\u043d\u0442\u0430\u043a\u0442 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d"
+          }
+        },
+        "summary": "\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u044e \u043e \u043a\u043e\u043d\u0442\u0430\u043a\u0442\u0435",
+        "tags": [
+          "\u041a\u043e\u043d\u0442\u0430\u043a\u0442\u044b"
+        ]
+      }
+    }
+  },
+  "swagger": "2.0"
+}

@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify
 from flasgger import Swagger
 
 app = Flask(__name__)
+
+# Инициализируем Swagger
 swagger = Swagger(app)
 
 # Хранилище контактов (имитация базы данных)
@@ -129,3 +131,14 @@ def delete_contact(contact_id):
         return jsonify({'error': 'Contact not found'}), 404
     del contacts[contact_id]
     return jsonify({'message': 'Contact deleted'}), 200
+
+# Маршрут для получения swagger.json
+@app.route('/swagger.json')
+def swagger_spec():
+    # Получаем спецификацию Swagger в формате JSON
+    return jsonify(swagger.get_apispecs())
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
