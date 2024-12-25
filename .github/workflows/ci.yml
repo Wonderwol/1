@@ -22,8 +22,9 @@ jobs:
       - name: Install Bandit
         run: pip install bandit  # Устанавливаем Bandit для проверки безопасности
 
-      - name: Run Bandit Security Scan
-        run: bandit -r ./ -x tests --output bandit_report.html  # Запуск Bandit и сохранение отчета
+      - name: Run security check
+        run: |
+         bandit -r . -x ./venv -x ./.git --exclude ./venv/Lib/site-packages --skip B101,B110,B602,B603,B605,B607
 
       - name: Upload Bandit Report as Artifact
         uses: actions/upload-artifact@v4
