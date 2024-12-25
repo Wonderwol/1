@@ -137,8 +137,3 @@ def delete_contact(contact_id):
 def swagger_spec():
     # Получаем спецификацию Swagger в формате JSON
     return jsonify(swagger.get_apispecs())
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
