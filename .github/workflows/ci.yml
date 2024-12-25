@@ -57,7 +57,15 @@ jobs:
           flask run --host=0.0.0.0 --port=5000 --debug &  # Запускаем сервер в фоне с флагом debug
 
       - name: Wait for Flask to start
-        run: sleep 5  # Увеличиваем время ожидания до 30 секунд
+        run: sleep 30  # Увеличиваем время ожидания до 30 секунд
+
+      - name: Check if Flask is running
+        run: |
+          curl --silent --fail http://127.0.0.1:5000/ || exit 1  # Проверяем, что сервер доступен
+
+      - name: Check Flask logs (diagnostic step)
+        run: |
+          curl http://127.0.0.1:5000/swagger.json || echo "Flask did not respond correctly"  # Получаем swagger.json или выводим ошибку
 
       - name: Generate OpenAPI Specification (openapi.yaml)
         run: |
@@ -67,7 +75,6 @@ jobs:
       - name: Check if openapi.yaml exists
         run: |
           ls -la openapi.yaml  # Проверяем, существует ли файл openapi.yaml
-        continue-on-error: true  # Если файл не существует, пайплайн продолжит выполнение
 
       - name: Upload OpenAPI Spec as Artifact
         uses: actions/upload-artifact@v4
@@ -93,11 +100,6 @@ jobs:
         run: |
           npm install -g @redocly/cli@latest  # Устанавливаем последнюю версию Redocly CLI
 
-      - name: Check if openapi.yaml exists for ReDoc generation
-        run: |
-          ls -la openapi.yaml  # Проверяем, что файл openapi.yaml существует перед генерацией
-        continue-on-error: true  # Этот шаг не остановит пайплайн
-
       - name: Generate ReDoc HTML
         run: |
           redocly build-docs openapi.yaml -o docs/index.html  # Генерируем страницу документации ReDoc
@@ -116,15 +118,3 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs  # Директория, куда загружается документация
-
-     
-
-
-
-
-
-
-
-
-
-
