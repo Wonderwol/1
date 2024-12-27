@@ -51,7 +51,7 @@ jobs:
           flask run --host=0.0.0.0 --port=5000 --debug &  # Запускаем сервер в фоне с флагом debug
 
       - name: Wait for Flask to start
-        run: sleep 30  # Увеличиваем время ожидания, чтобы сервер успел запуститься
+        run: sleep 10  # Увеличиваем время ожидания, чтобы сервер успел запуститься
 
       - name: Generate OpenAPI Specification (openapi.yaml)
         run: |
