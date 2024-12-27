@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, send_from_directory, request
+from flask import Flask, jsonify, request
 from flasgger import Swagger
 import os
 import json
@@ -16,6 +16,7 @@ if not os.path.exists(swagger_files_dir):
 # Хранилище данных
 contacts = {}
 contact_id_counter = 1
+
 
 @app.route('/contacts', methods=['POST'])
 def create_contact():
@@ -73,6 +74,7 @@ def create_contact():
     }
     return jsonify(contacts[contact_id]), 201
 
+
 @app.route('/contacts/<int:contact_id>', methods=['GET'])
 def get_contact(contact_id):
     """
@@ -109,6 +111,7 @@ def get_contact(contact_id):
         return jsonify({'error': 'Contact not found'}), 404
     return jsonify(contact)
 
+
 @app.route('/contacts/<int:contact_id>', methods=['DELETE'])
 def delete_contact(contact_id):
     """
@@ -139,6 +142,7 @@ def delete_contact(contact_id):
     del contacts[contact_id]
     return jsonify({'message': 'Contact deleted'}), 200
 
+
 @app.route('/swagger.json')
 def swagger_spec():
     """
@@ -152,35 +156,13 @@ def swagger_spec():
     """
     # Получаем спецификацию Swagger
     api_spec = swagger.get_apispecs()
-    
+
     # Путь для сохранения swagger.json
     swagger_file_path = os.path.join(swagger_files_dir, 'swagger.json')
-    
+
     # Сохраняем спецификацию в файл
     with open(swagger_file_path, 'w') as f:
         json.dump(api_spec, f)
-    
+
     # Возвращаем спецификацию в формате JSON
     return jsonify(api_spec)
-
-@app.route('/download_swagger')
-def download_swagger():
-    """
-    Скачивание файла swagger.json
-    ---
-    tags:
-      - Система
-    responses:
-      200:
-        description: Файл swagger.json скачан
-    """
-    # Путь к сохраненному swagger.json
-    swagger_file_path = os.path.join(swagger_files_dir, 'swagger.json')
-
-    # Проверяем, существует ли файл, и если существует, отдаем его для скачивания
-    if os.path.exists(swagger_file_path):
-        return send_from_directory(swagger_files_dir, 'swagger.json', as_attachment=True)
-    else:
-        return jsonify({"error": "swagger.json file not found"}), 404
-
-
