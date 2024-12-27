@@ -1,139 +1,46 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, send_from_directory
 from flasgger import Swagger
+import os
+import json
 
 app = Flask(__name__)
-
-# Инициализируем Swagger
 swagger = Swagger(app)
 
-# Хранилище контактов (имитация базы данных)
-contacts = {}
-contact_id_counter = 1
+# Папка для хранения swagger.json
+swagger_files_dir = 'swagger_files'
 
-@app.route('/contacts', methods=['POST'])
-def create_contact():
-    """
-    Создать новый контакт
-    ---
-    tags:
-      - Контакты
-    parameters:
-      - name: body
-        in: body
-        required: true
-        description: Данные нового контакта
-        schema:
-          type: object
-          required:
-            - name
-            - phone
-          properties:
-            name:
-              type: string
-              example: John Doe
-            phone:
-              type: string
-              example: "+123456789"
-    responses:
-      201:
-        description: Контакт успешно создан
-        schema:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 1
-            name:
-              type: string
-              example: John Doe
-            phone:
-              type: string
-              example: "+123456789"
-      400:
-        description: Ошибка в запросе
-    """
-    global contact_id_counter
-    data = request.json
-    if not data or 'name' not in data or 'phone' not in data:
-        return jsonify({'error': 'Name and phone are required'}), 400
+# Убедитесь, что папка существует
+if not os.path.exists(swagger_files_dir):
+    os.makedirs(swagger_files_dir)
 
-    contact_id = contact_id_counter
-    contact_id_counter += 1
-    contacts[contact_id] = {
-        'id': contact_id,
-        'name': data['name'],
-        'phone': data['phone']
-    }
-    return jsonify(contacts[contact_id]), 201
-
-@app.route('/contacts/<int:contact_id>', methods=['GET'])
-def get_contact(contact_id):
-    """
-    Получить информацию о контакте
-    ---
-    tags:
-      - Контакты
-    parameters:
-      - name: contact_id
-        in: path
-        type: integer
-        required: true
-        description: Идентификатор контакта
-    responses:
-      200:
-        description: Информация о контакте
-        schema:
-          type: object
-          properties:
-            id:
-              type: integer
-              example: 1
-            name:
-              type: string
-              example: John Doe
-            phone:
-              type: string
-              example: "+123456789"
-      404:
-        description: Контакт не найден
-    """
-    contact = contacts.get(contact_id)
-    if not contact:
-        return jsonify({'error': 'Contact not found'}), 404
-    return jsonify(contact)
-
-@app.route('/contacts/<int:contact_id>', methods=['DELETE'])
-def delete_contact(contact_id):
-    """
-    Удалить контакт
-    ---
-    tags:
-      - Контакты
-    parameters:
-      - name: contact_id
-        in: path
-        type: integer
-        required: true
-        description: Идентификатор контакта
-    responses:
-      200:
-        description: Контакт успешно удален
-        schema:
-          type: object
-          properties:
-            message:
-              type: string
-              example: Contact deleted
-      404:
-        description: Контакт не найден
-    """
-    if contact_id not in contacts:
-        return jsonify({'error': 'Contact not found'}), 404
-    del contacts[contact_id]
-    return jsonify({'message': 'Contact deleted'}), 200
-
-# Маршрут для получения swagger.json
 @app.route('/swagger.json')
 def swagger_spec():
-    # Получаем спецификацию Swagger в формате JSON
-    return jsonify(swagger.get_apispecs())
+    # Получаем спецификацию Swagger
+    api_spec = swagger.get_apispecs()
+    
+    # Путь для сохранения swagger.json
+    swagger_file_path = os.path.join(swagger_files_dir, 'swagger.json')
+    
+    # Сохраняем спецификацию в файл
+    with open(swagger_file_path, 'w') as f:
+        json.dump(api_spec, f)
+    
+    # Возвращаем спецификацию в формате JSON
+    return jsonify(api_spec)
+
+@app.route('/download_swagger')
+def download_swagger():
+    # Путь к сохраненному swagger.json
+    swagger_file_path = os.path.join(swagger_files_dir, 'swagger.json')
+
+    # Проверяем, существует ли файл, и если существует, отдаем его для скачивания
+    if os.path.exists(swagger_file_path):
+        return send_from_directory(swagger_files_dir, 'swagger.json', as_attachment=True)
+    else:
+        return jsonify({"error": "swagger.json file not found"}), 404
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
