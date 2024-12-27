@@ -12,16 +12,16 @@
     <script src="https://unpkg.com/swagger-ui-dist/swagger-ui-standalone-preset.js"></script>
     <script>
       const ui = SwaggerUIBundle({
-        url: "swagger.json",  // Указываем ваш swagger.json, который будет загружен
+        url: "http://127.0.0.1:5000/swagger.json",  // Указываем полный путь к swagger.json
         dom_id: '#swagger-ui',
         deepLinking: true,
         presets: [
           SwaggerUIBundle.presets.apis,
-          SwaggerUIBundle.presets.sdk
+          SwaggerUIBundle.SwaggerUIStandalonePreset
         ],
         layout: "BaseLayout"
       });
-    </script>
+    </script>    
   </body>
 </html>
 
