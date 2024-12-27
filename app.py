@@ -38,9 +38,3 @@ def download_swagger():
         return send_from_directory(swagger_files_dir, 'swagger.json', as_attachment=True)
     else:
         return jsonify({"error": "swagger.json file not found"}), 404
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-
-
